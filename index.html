@@ -20,6 +20,12 @@
       text-align: center;
     }
 
+    #clickCounter {
+      color: purple;
+      text-shadow: 0 0 10px purple;
+      margin-bottom: 10px;
+    }
+
     img {
       max-height: 40vh;
       width: auto;
@@ -35,7 +41,8 @@
   </style>
 </head>
 <body>
-  click me
+  <div id="clickCounter">Clicks: 0</div>
+  <div>click me</div>
 
   <img
     id="mogImage"
@@ -49,10 +56,16 @@
   <script>
     const image = document.getElementById('mogImage');
     const sound = document.getElementById('mogSound');
+    const counter = document.getElementById('clickCounter');
+
+    let clickCount = 0;
 
     image.addEventListener('click', () => {
       sound.currentTime = 0; // Rewind to start
       sound.play();
+
+      clickCount++;
+      counter.textContent = `Clicks: ${clickCount}`;
     });
   </script>
 </body>
