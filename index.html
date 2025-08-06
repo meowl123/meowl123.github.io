@@ -85,37 +85,64 @@
         const tiny = document.createElement('img');
         tiny.src = 'cat-owl.jpg';
         tiny.className = 'tiny-img';
-        tiny.style.top = Math.random() * (window.innerHeight - 100) + 'px';
-        tiny.style.left = Math.random() * (window.innerWidth - 100) + 'px';
+
+        // Start position
+        tiny.style.top = '0px';
+        tiny.style.left = Math.random() * (window.innerWidth - 60) + 'px';
         document.body.appendChild(tiny);
 
-        makeDraggable(tiny);
-      }
-    }
+        // Physics variables
+        let x = parseFloat(tiny.style.left);
+        let y = 0;
+        let vx = (Math.random() - 0.5) * 4;
+        let vy = Math.random() * 2;
+        const gravity = 0.3;
+        const bounce = 0.7;
+        const friction = 0.98;
 
-    function makeDraggable(el) {
-      let isDragging = false;
-      let offsetX, offsetY;
+        function updatePhysics() {
+          vy += gravity;
+          x += vx;
+          y += vy;
 
-      el.addEventListener('mousedown', (e) => {
-        isDragging = true;
-        offsetX = e.clientX - el.offsetLeft;
-        offsetY = e.clientY - el.offsetTop;
-        el.style.cursor = 'grabbing';
-      });
+          // Bounce off floor
+          if (y + tiny.offsetHeight > window.innerHeight) {
+            y = window.innerHeight - tiny.offsetHeight;
+            vy *= -bounce;
+          }
 
-      document.addEventListener('mousemove', (e) => {
-        if (isDragging) {
-          el.style.left = (e.clientX - offsetX) + 'px';
-          el.style.top = (e.clientY - offsetY) + 'px';
+          // Bounce off ceiling
+          if (y < 0) {
+            y = 0;
+            vy *= -bounce;
+          }
+
+          // Bounce off right wall
+          if (x + tiny.offsetWidth > window.innerWidth) {
+            x = window.innerWidth - tiny.offsetWidth;
+            vx *= -bounce;
+          }
+
+          // Bounce off left wall
+          if (x < 0) {
+            x = 0;
+            vx *= -bounce;
+          }
+
+          // Apply friction
+          vx *= friction;
+
+          // Update position
+          tiny.style.left = x + 'px';
+          tiny.style.top = y + 'px';
+
+          requestAnimationFrame(updatePhysics);
         }
-      });
 
-      document.addEventListener('mouseup', () => {
-        isDragging = false;
-        el.style.cursor = 'grab';
-      });
+        updatePhysics();
+      }
     }
   </script>
 </body>
 </html>
+
