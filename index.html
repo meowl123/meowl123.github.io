@@ -48,6 +48,8 @@
       border-radius: 5px;
       cursor: grab;
       z-index: 1000;
+      user-select: none;
+      -webkit-user-drag: none;
     }
   </style>
 </head>
@@ -85,13 +87,12 @@
         const tiny = document.createElement('img');
         tiny.src = 'cat-owl.jpg';
         tiny.className = 'tiny-img';
+        tiny.draggable = false; // Disable native drag
 
-        // Start position
         tiny.style.top = '0px';
         tiny.style.left = Math.random() * (window.innerWidth - 60) + 'px';
         document.body.appendChild(tiny);
 
-        // Physics variables
         let x = parseFloat(tiny.style.left);
         let y = 0;
         let vx = (Math.random() - 0.5) * 4;
@@ -100,42 +101,72 @@
         const bounce = 0.7;
         const friction = 0.98;
 
-        function updatePhysics() {
-          vy += gravity;
-          x += vx;
-          y += vy;
+        let isDragging = false;
+        let offsetX = 0, offsetY = 0;
 
-          // Bounce off floor
-          if (y + tiny.offsetHeight > window.innerHeight) {
-            y = window.innerHeight - tiny.offsetHeight;
-            vy *= -bounce;
+        // Prevent default drag behavior
+        tiny.addEventListener('dragstart', (e) => e.preventDefault());
+
+        tiny.addEventListener('mousedown', (e) => {
+          isDragging = true;
+          offsetX = e.clientX - x;
+          offsetY = e.clientY - y;
+          tiny.style.cursor = 'grabbing';
+        });
+
+        document.addEventListener('mousemove', (e) => {
+          if (isDragging) {
+            x = e.clientX - offsetX;
+            y = e.clientY - offsetY;
+            vx = 0;
+            vy = 0;
+            updatePosition();
           }
+        });
 
-          // Bounce off ceiling
-          if (y < 0) {
-            y = 0;
-            vy *= -bounce;
+        document.addEventListener('mouseup', () => {
+          if (isDragging) {
+            isDragging = false;
+            tiny.style.cursor = 'grab';
           }
+        });
 
-          // Bounce off right wall
-          if (x + tiny.offsetWidth > window.innerWidth) {
-            x = window.innerWidth - tiny.offsetWidth;
-            vx *= -bounce;
-          }
-
-          // Bounce off left wall
-          if (x < 0) {
-            x = 0;
-            vx *= -bounce;
-          }
-
-          // Apply friction
-          vx *= friction;
-
-          // Update position
+        function updatePosition() {
           tiny.style.left = x + 'px';
           tiny.style.top = y + 'px';
+        }
 
+        function updatePhysics() {
+          if (!isDragging) {
+            vy += gravity;
+            x += vx;
+            y += vy;
+
+            if (y + tiny.offsetHeight > window.innerHeight) {
+              y = window.innerHeight - tiny.offsetHeight;
+              vy *= -bounce;
+            }
+
+            if (y < 0) {
+              y = 0;
+              vy *= -bounce;
+            }
+
+            if (x + tiny.offsetWidth > window.innerWidth) {
+              x = window.innerWidth - tiny.offsetWidth;
+              vx *= -bounce;
+            }
+
+            if (x < 0) {
+              x = 0;
+              vx *= -bounce;
+            }
+
+            vx *= friction;
+            vy *= friction;
+          }
+
+          updatePosition();
           requestAnimationFrame(updatePhysics);
         }
 
@@ -145,4 +176,3 @@
   </script>
 </body>
 </html>
-
