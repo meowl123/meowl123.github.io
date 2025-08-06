@@ -51,11 +51,20 @@
       user-select: none;
       -webkit-user-drag: none;
     }
+
+    #spawnButton {
+      color: cyan;
+      text-shadow: 0 0 10px cyan;
+      cursor: pointer;
+      font-size: 2rem;
+      margin-top: 20px;
+      text-decoration: underline;
+    }
   </style>
 </head>
 <body>
   <div id="clickCounter">Clicks: 0</div>
-  <div>click me</div>
+  <div id="spawnButton">click for raining cats</div>
 
   <img id="mogImage" src="cat-owl.jpg" alt="cat owl">
 
@@ -66,20 +75,18 @@
     const image = document.getElementById('mogImage');
     const sound = document.getElementById('mogSound');
     const counter = document.getElementById('clickCounter');
+    const spawnButton = document.getElementById('spawnButton');
     let clickCount = 0;
-    let spawned = false;
 
     image.addEventListener('click', () => {
       sound.currentTime = 0;
       sound.play();
-
       clickCount++;
       counter.textContent = `Clicks: ${clickCount}`;
+    });
 
-      if (clickCount === 100 && !spawned) {
-        spawnTinyImages(5);
-        spawned = true;
-      }
+    spawnButton.addEventListener('click', () => {
+      spawnTinyImages(10);
     });
 
     function spawnTinyImages(count) {
@@ -87,7 +94,7 @@
         const tiny = document.createElement('img');
         tiny.src = 'cat-owl.jpg';
         tiny.className = 'tiny-img';
-        tiny.draggable = false; // Disable native drag
+        tiny.draggable = false;
 
         tiny.style.top = '0px';
         tiny.style.left = Math.random() * (window.innerWidth - 60) + 'px';
@@ -104,7 +111,6 @@
         let isDragging = false;
         let offsetX = 0, offsetY = 0;
 
-        // Prevent default drag behavior
         tiny.addEventListener('dragstart', (e) => e.preventDefault());
 
         tiny.addEventListener('mousedown', (e) => {
