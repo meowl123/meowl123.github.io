@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!DOCTYPE html> 
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -102,83 +102,15 @@
 
         let x = parseFloat(tiny.style.left);
         let y = 0;
-        let vx = (Math.random() - 0.5) * 4;
-        let vy = Math.random() * 2;
+        let vx = (Math.random() - 0.5) * 8; // faster throw
+        let vy = Math.random() * 4;
         const gravity = 0.3;
-        const bounce = 0.7;
-        const friction = 0.98;
+        const bounce = 0.9;   // retains most speed
+        const friction = 1;   // no slowdown
 
         let isDragging = false;
         let offsetX = 0, offsetY = 0;
 
         tiny.addEventListener('dragstart', (e) => e.preventDefault());
 
-        tiny.addEventListener('mousedown', (e) => {
-          isDragging = true;
-          offsetX = e.clientX - x;
-          offsetY = e.clientY - y;
-          tiny.style.cursor = 'grabbing';
-        });
-
-        document.addEventListener('mousemove', (e) => {
-          if (isDragging) {
-            x = e.clientX - offsetX;
-            y = e.clientY - offsetY;
-            vx = 0;
-            vy = 0;
-            updatePosition();
-          }
-        });
-
-        document.addEventListener('mouseup', () => {
-          if (isDragging) {
-            isDragging = false;
-            tiny.style.cursor = 'grab';
-          }
-        });
-
-        function updatePosition() {
-          tiny.style.left = x + 'px';
-          tiny.style.top = y + 'px';
-        }
-
-        function updatePhysics() {
-          if (!isDragging) {
-            vy += gravity;
-            x += vx;
-            y += vy;
-
-            if (y + tiny.offsetHeight > window.innerHeight) {
-              y = window.innerHeight - tiny.offsetHeight;
-              vy *= -bounce;
-            }
-
-            if (y < 0) {
-              y = 0;
-              vy *= -bounce;
-            }
-
-            if (x + tiny.offsetWidth > window.innerWidth) {
-              x = window.innerWidth - tiny.offsetWidth;
-              vx *= -bounce;
-            }
-
-            if (x < 0) {
-              x = 0;
-              vx *= -bounce;
-            }
-
-            vx *= friction;
-            vy *= friction;
-          }
-
-          updatePosition();
-          requestAnimationFrame(updatePhysics);
-        }
-
-        updatePhysics();
-      }
-    }
-  </script>
-</body>
-</html>
+        tiny.addEventListener('mouse
