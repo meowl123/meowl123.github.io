@@ -1,13 +1,13 @@
-<!DOCTYPE html> 
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Click Me</title>
   <style>
     body {
       margin: 0;
-      height: 100vh;
+      height: 100dvh;
       background-color: black;
       display: flex;
       flex-direction: column;
@@ -18,7 +18,6 @@
       font-size: 2.5rem;
       text-shadow: 0 0 10px red;
       text-align: center;
-      overflow: hidden;
       position: relative;
     }
 
@@ -29,7 +28,7 @@
     }
 
     img {
-      max-height: 40vh;
+      max-height: 40dvh;
       width: auto;
       margin-top: 20px;
       border-radius: 10px;
@@ -50,6 +49,7 @@
       z-index: 1000;
       user-select: none;
       -webkit-user-drag: none;
+      touch-action: none;
     }
 
     #spawnButton {
@@ -65,10 +65,7 @@
 <body>
   <div id="clickCounter">Clicks: 0</div>
   <div id="spawnButton">click for raining cats</div>
-
-  <img id="mogImage" src="cat-owl.jpg" alt="cat owl">
-
-  <!-- Hidden audio element -->
+  <img id="mogImage" src="cat-owl.jpg" alt="cat owl" />
   <audio id="mogSound" src="mogged.mp3"></audio>
 
   <script>
@@ -78,16 +75,19 @@
     const spawnButton = document.getElementById('spawnButton');
     let clickCount = 0;
 
-    image.addEventListener('click', () => {
+    function handleImageClick(e) {
+      e.preventDefault(); // prevent double events
       sound.currentTime = 0;
-      sound.play();
+      sound.play().catch(() => {}); // Prevent error if blocked
       clickCount++;
       counter.textContent = `Clicks: ${clickCount}`;
-    });
+    }
 
-    spawnButton.addEventListener('click', () => {
-      spawnTinyImages(10);
-    });
+    image.addEventListener('click', handleImageClick);
+    image.addEventListener('touchstart', handleImageClick);
+
+    spawnButton.addEventListener('click', () => spawnTinyImages(10));
+    spawnButton.addEventListener('touchstart', () => spawnTinyImages(10));
 
     function spawnTinyImages(count) {
       for (let i = 0; i < count; i++) {
@@ -102,15 +102,86 @@
 
         let x = parseFloat(tiny.style.left);
         let y = 0;
-        let vx = (Math.random() - 0.5) * 8; // faster throw
+        let vx = (Math.random() - 0.5) * 8;
         let vy = Math.random() * 4;
         const gravity = 0.3;
-        const bounce = 0.9;   // retains most speed
-        const friction = 1;   // no slowdown
+        const bounce = 0.9;
+        const friction = 1;
 
         let isDragging = false;
         let offsetX = 0, offsetY = 0;
 
-        tiny.addEventListener('dragstart', (e) => e.preventDefault());
+        function updatePosition() {
+          if (!isDragging) {
+            vy += gravity;
+            x += vx;
+            y += vy;
 
-        tiny.addEventListener('mouse
+            // bounce off walls
+            if (x <= 0 || x >= window.innerWidth - 60) {
+              vx *= -bounce;
+              x = Math.max(0, Math.min(x, window.innerWidth - 60));
+            }
+
+            // bounce off bottom
+            if (y >= window.innerHeight - 60) {
+              y = window.innerHeight - 60;
+              vy *= -bounce;
+              vx *= friction;
+            }
+
+            tiny.style.left = x + 'px';
+            tiny.style.top = y + 'px';
+          }
+
+          requestAnimationFrame(updatePosition);
+        }
+
+        updatePosition();
+
+        // Mobile touch drag
+        tiny.addEventListener('touchstart', (e) => {
+          isDragging = true;
+          const touch = e.touches[0];
+          offsetX = touch.clientX - x;
+          offsetY = touch.clientY - y;
+        });
+
+        tiny.addEventListener('touchmove', (e) => {
+          if (isDragging) {
+            const touch = e.touches[0];
+            x = touch.clientX - offsetX;
+            y = touch.clientY - offsetY;
+            tiny.style.left = x + 'px';
+            tiny.style.top = y + 'px';
+          }
+        });
+
+        tiny.addEventListener('touchend', () => {
+          isDragging = false;
+        });
+
+        // Desktop mouse drag (optional)
+        tiny.addEventListener('mousedown', (e) => {
+          isDragging = true;
+          offsetX = e.clientX - x;
+          offsetY = e.clientY - y;
+        });
+
+        document.addEventListener('mousemove', (e) => {
+          if (isDragging) {
+            x = e.clientX - offsetX;
+            y = e.clientY - offsetY;
+            tiny.style.left = x + 'px';
+            tiny.style.top = y + 'px';
+          }
+        });
+
+        document.addEventListener('mouseup', () => {
+          isDragging = false;
+        });
+      }
+    }
+  </script>
+</body>
+</html>
